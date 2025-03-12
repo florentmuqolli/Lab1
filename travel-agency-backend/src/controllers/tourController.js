@@ -11,4 +11,8 @@ const createTour = async (req, res) => {
   res.status(201).json({ id: tourId, ...tour });
 };
 
-module.exports = { getAllTours, createTour };
+const getProtectedData = async (req, res) => {
+  res.json({ message: 'This is protected data!', user: req.user });
+};
+
+module.exports = { getAllTours, createTour, getProtectedData };

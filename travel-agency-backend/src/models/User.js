@@ -23,6 +23,10 @@ class User {
     const [rows] = await db.query('SELECT * FROM users WHERE refresh_token = ?', [refreshToken]);
     return rows[0];
   }
+
+  static async clearRefreshToken(userId) {
+    await db.query('UPDATE users SET refresh_token = NULL WHERE id = ?', [userId]);
+  }
 }
 
 module.exports = User;

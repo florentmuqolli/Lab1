@@ -46,18 +46,31 @@ const refreshToken = async (req, res) => {
 
   jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
     if (err) {
+      console.error('Refresh token verification failed:', err.message);
       return res.status(403).json({ message: 'Invalid refresh token' });
     }
 
     const user = await User.findByRefreshToken(refreshToken);
     if (!user) {
+      console.error('Refresh token not found in database');
       return res.status(403).json({ message: 'Refresh token not found' });
     }
 
-    const accessToken = generateAccessToken(user.id);
+    const newAccessToken = generateAccessToken(user.id);
+    const newRefreshToken = generateRefreshToken(user.id);
 
-    res.json({ accessToken });
+    await User.updateRefreshToken(user.id, newRefreshToken);
+
+    res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   });
 };
 
-module.exports = { register, login, refreshToken };
+const logout = async (req, res) => {
+  const { id } = req.user; 
+
+  await User.clearRefreshToken(id);
+
+  res.json({ message: 'Logged out successfully' });
+};
+
+module.exports = { register, login, refreshToken, logout };
