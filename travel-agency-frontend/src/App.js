@@ -6,6 +6,7 @@ import Tours from './pages/Tours';
 import Dashboard from './pages/Dashboard';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -15,8 +16,22 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/tours" element={<Tours />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/tours"
+          element={
+            <ProtectedRoute>
+              <Tours />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Alert } from 'react-bootstrap';
 import axios from 'axios';
+import refreshAccessToken from '../services/auth';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -9,13 +10,29 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const accessToken = localStorage.getItem('accessToken');
+        let accessToken = localStorage.getItem('accessToken');
+
+        
         const response = await axios.get('http://localhost:5000/api/tours/protected', {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
+
         setUser(response.data.user);
       } catch (err) {
-        setError('Failed to fetch user data');
+        if (err.response?.status === 401) {
+       
+          try {
+            const newAccessToken = await refreshAccessToken();
+            const response = await axios.get('http://localhost:5000/api/tours/protected', {
+              headers: { Authorization: `Bearer ${newAccessToken}` },
+            });
+            setUser(response.data.user);
+          } catch (refreshErr) {
+            setError('Session expired. Please log in again.');
+          }
+        } else {
+          setError('Failed to fetch user data');
+        }
       }
     };
 
