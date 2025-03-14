@@ -1,4 +1,5 @@
 const Tour = require('../models/Tour');
+const User = require('../models/User');
 
 const getAllTours = async (req, res) => {
   const tours = await Tour.getAll();
@@ -12,7 +13,18 @@ const createTour = async (req, res) => {
 };
 
 const getProtectedData = async (req, res) => {
-  res.json({ message: 'This is protected data!', user: req.user });
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'This is protected data!', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch user data' });
+  }
 };
 
 module.exports = { getAllTours, createTour, getProtectedData };

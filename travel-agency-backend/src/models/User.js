@@ -6,6 +6,11 @@ class User {
     return rows[0];
   }
 
+  static async findById(userId) {
+    const [rows] = await db.query('SELECT id, name, email FROM users WHERE id = ?', [userId]);
+    return rows[0];
+  }
+
   static async create(user) {
     const { name, email, password } = user;
     const [result] = await db.query(

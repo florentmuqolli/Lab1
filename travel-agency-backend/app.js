@@ -7,11 +7,9 @@ const tourRoutes = require('./src/routes/tourRoutes');
 dotenv.config();
 const app = express();
 
-// Middleware
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);
 

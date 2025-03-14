@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/styles.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,18 +12,14 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', {
         email,
         password,
       });
-
-      // Save tokens to localStorage
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-
-      // Redirect to dashboard
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid email or password');
