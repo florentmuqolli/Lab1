@@ -21,7 +21,6 @@ const Register = () => {
         password,
       });
 
-      // Redirect to login after successful registration
       navigate('/login');
     } catch (err) {
       setError('Registration failed. Please try again.');
@@ -61,6 +60,9 @@ const Register = () => {
           />
         </Form.Group>
         <Button type="submit" className="mt-3">Register</Button>
+        <div className="text-center">
+          <p>Already have an account? <Button variant="link" onClick={() => navigate('/login')}>Login here</Button></p>
+        </div>
       </Form>
     </Container>
   );

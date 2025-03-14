@@ -50,6 +50,9 @@ const Login = () => {
           />
         </Form.Group>
         <Button type="submit" className="mt-3">Login</Button>
+        <div className="text-center">
+          <p>Don't have an account? <Button variant="link" onClick={() => navigate('/register')}>Register here</Button></p>
+        </div>
       </Form>
     </Container>
   );

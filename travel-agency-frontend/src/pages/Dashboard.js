@@ -15,7 +15,7 @@ const Dashboard = () => {
         const response = await axios.get('http://localhost:5000/api/tours/protected', {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        
+
         setUser(response.data.user);
       } catch (err) {
         if (err.response?.status === 401) {
