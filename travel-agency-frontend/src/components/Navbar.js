@@ -21,6 +21,7 @@ const NavigationBar = () => {
             <Nav.Link as={Link} to="/">Home</Nav.Link>
             <Nav.Link as={Link} to="/tours">Tours</Nav.Link>
             <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
+            <Nav.Link as={Link} to="/my-bookings">My Bookings</Nav.Link>
           </Nav>
           <Nav>
             <Button variant="outline-danger" onClick={handleLogout}>Logout</Button>
