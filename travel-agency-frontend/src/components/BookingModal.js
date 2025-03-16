@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 
 const BookingModal = ({ show, onHide, booking, onCreate, onUpdate }) => {
   const [userId, setUserId] = useState(booking ? booking.user_id : '');
   const [tourId, setTourId] = useState(booking ? booking.tour_id : '');
   const [status, setStatus] = useState(booking ? booking.status : 'pending');
+
+  useEffect(() => {
+      if (booking) {
+        setUserId(booking.user_id);
+        setTourId(booking.tour_id);
+        setStatus(booking.status);
+      } else {
+        setUserId('');
+        setTourId('');
+        setStatus('');
+      }
+    }, [booking, show]); 
 
   const handleSubmit = (e) => {
     e.preventDefault();

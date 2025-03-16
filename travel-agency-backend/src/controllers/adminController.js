@@ -4,6 +4,8 @@ const Booking = require('../models/Booking');
 
 const createUser = async (req, res) => {
   const { name, email, password, role = 'user' } = req.body;
+  console.log('Creating user with payload:', { name, email, password, role });
+  
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
@@ -12,6 +14,7 @@ const createUser = async (req, res) => {
     const userId = await User.create({ name, email, password, role });
     res.status(201).json({ id: userId, name, email, role });
   } catch (err) {
+    console.error('Error creating user:', err.message); 
     res.status(500).json({ message: 'Failed to create user' });
   }
 };
@@ -112,6 +115,7 @@ const deleteUser = async (req, res) => {
     await User.delete(userId);
     res.json({ message: 'User deleted successfully' });
   } catch (err) {
+    console.error('Error deleting user:', err.message); 
     res.status(500).json({ message: 'Failed to delete user' });
   }
 };
@@ -123,6 +127,7 @@ const deleteTour = async (req, res) => {
     await Tour.delete(tourId);
     res.json({ message: 'Tour deleted successfully' });
   } catch (err) {
+    console.error('Error deleting tour:', err.message); 
     res.status(500).json({ message: 'Failed to delete tour' });
   }
 };
@@ -134,6 +139,7 @@ const deleteBooking = async (req, res) => {
     await Booking.delete(bookingId);
     res.json({ message: 'Booking deleted successfully' });
   } catch (err) {
+    console.error('Error deleting booking:', err.message); 
     res.status(500).json({ message: 'Failed to delete booking' });
   }
 };

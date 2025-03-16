@@ -48,10 +48,27 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      const response = await axios.post('http://localhost:5000/api/auth/refresh-token', {
+        refreshToken,
+      });
+  
+      localStorage.setItem('accessToken', response.data.accessToken);
+      return response.data.accessToken;
+    } catch (err) {
+      console.error('Failed to refresh access token:', err.response?.data || err.message);
+      throw err;
+    }
+  };
+
   const handleCreateUser = async (user) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      let accessToken = localStorage.getItem('accessToken');
       console.log('Creating user with payload:', user); 
+      console.log('Access token:', accessToken); 
+  
       const response = await axios.post('http://localhost:5000/api/admin/users', user, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
@@ -65,123 +82,263 @@ const AdminDashboard = () => {
 
   const handleUpdateUser = async (userId, updatedUser) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      let accessToken = localStorage.getItem('accessToken');
       await axios.put(`http://localhost:5000/api/admin/users/${userId}`, updatedUser, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
+  
       const updatedUsers = users.map((user) =>
         user.id === userId ? { ...user, ...updatedUser } : user
       );
       setUsers(updatedUsers);
       setShowUserModal(false);
     } catch (err) {
-      setError('Failed to update user');
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          await axios.put(`http://localhost:5000/api/admin/users/${userId}`, updatedUser, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+  
+          const updatedUsers = users.map((user) =>
+            user.id === userId ? { ...user, ...updatedUser } : user
+          );
+          setUsers(updatedUsers);
+          setShowUserModal(false);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
+        console.error('Error updating user:', err.response?.data || err.message);
+        setError('Failed to update user');
+      }
     }
   };
 
   const handleDeleteUser = async (userId) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      console.log('Deleting user with id:', userId); 
-      await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
+      let accessToken = localStorage.getItem('accessToken');
+      let response = await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
+  
       const updatedUsers = users.filter((user) => user.id !== userId);
       setUsers(updatedUsers);
     } catch (err) {
-      setError('Failed to delete user');
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+  
+          const updatedUsers = users.filter((user) => user.id !== userId);
+          setUsers(updatedUsers);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
+        console.error('Error deleting user:', err.response?.data || err.message);
+        setError('Failed to delete user');
+      }
     }
   };
 
   const handleCreateTour = async (tour) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      let accessToken = localStorage.getItem('accessToken');
       const response = await axios.post('http://localhost:5000/api/admin/tours', tour, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setTours([...tours, response.data]);
       setShowTourModal(false);
     } catch (err) {
-      setError('Failed to create tour');
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          const response = await axios.post('http://localhost:5000/api/admin/tours', tour, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+          setTours([...tours, response.data]);
+          setShowTourModal(false);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
+        console.error('Error creating tour:', err.response?.data || err.message);
+        setError('Failed to create tour');
+      }
     }
   };
 
   const handleUpdateTour = async (tourId, updatedTour) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      let accessToken = localStorage.getItem('accessToken');
       await axios.put(`http://localhost:5000/api/admin/tours/${tourId}`, updatedTour, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
+  
       const updatedTours = tours.map((tour) =>
         tour.id === tourId ? { ...tour, ...updatedTour } : tour
       );
       setTours(updatedTours);
       setShowTourModal(false);
     } catch (err) {
-      setError('Failed to update tour');
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          await axios.put(`http://localhost:5000/api/admin/tours/${tourId}`, updatedTour, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+  
+          const updatedTours = tours.map((tour) =>
+            tour.id === tourId ? { ...tour, ...updatedTour } : tour
+          );
+          setTours(updatedTours);
+          setShowTourModal(false);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
+        console.error('Error updating tour:', err.response?.data || err.message);
+        setError('Failed to update tour');
+      }
     }
   };
 
   const handleDeleteTour = async (tourId) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      let accessToken = localStorage.getItem('accessToken');
       await axios.delete(`http://localhost:5000/api/admin/tours/${tourId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
+  
       const updatedTours = tours.filter((tour) => tour.id !== tourId);
       setTours(updatedTours);
     } catch (err) {
-      setError('Failed to delete tour');
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          await axios.delete(`http://localhost:5000/api/admin/tours/${tourId}`, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+  
+          const updatedTours = tours.filter((tour) => tour.id !== tourId);
+          setTours(updatedTours);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
+        console.error('Error deleting tour:', err.response?.data || err.message);
+        setError('Failed to delete tour');
+      }
     }
   };
 
   const handleCreateBooking = async (booking) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      console.log('Creating booking with payload:', booking);
+      let accessToken = localStorage.getItem('accessToken');
       const response = await axios.post('http://localhost:5000/api/admin/bookings', booking, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setBookings([...bookings, response.data]);
       setShowBookingModal(false);
     } catch (err) {
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          const response = await axios.post('http://localhost:5000/api/admin/bookings', booking, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+          setBookings([...bookings, response.data]);
+          setShowBookingModal(false);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
         console.error('Error creating booking:', err.response?.data || err.message);
-      setError('Failed to create booking');
+        setError('Failed to create booking');
+      }
     }
   };
 
   const handleUpdateBooking = async (bookingId, updatedBooking) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      let accessToken = localStorage.getItem('accessToken');
       await axios.put(`http://localhost:5000/api/admin/bookings/${bookingId}`, updatedBooking, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
+  
       const updatedBookings = bookings.map((booking) =>
         booking.id === bookingId ? { ...booking, ...updatedBooking } : booking
       );
       setBookings(updatedBookings);
       setShowBookingModal(false);
     } catch (err) {
-      setError('Failed to update booking');
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          await axios.put(`http://localhost:5000/api/admin/bookings/${bookingId}`, updatedBooking, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+  
+          const updatedBookings = bookings.map((booking) =>
+            booking.id === bookingId ? { ...booking, ...updatedBooking } : booking
+          );
+          setBookings(updatedBookings);
+          setShowBookingModal(false);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
+        console.error('Error updating booking:', err.response?.data || err.message);
+        setError('Failed to update booking');
+      }
     }
   };
 
   const handleDeleteBooking = async (bookingId) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      let accessToken = localStorage.getItem('accessToken');
       await axios.delete(`http://localhost:5000/api/admin/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
+  
       const updatedBookings = bookings.filter((booking) => booking.id !== bookingId);
       setBookings(updatedBookings);
     } catch (err) {
-      setError('Failed to delete booking');
+      if (err.response?.status === 401) {
+        try {
+          const newAccessToken = await refreshAccessToken();
+          await axios.delete(`http://localhost:5000/api/admin/bookings/${bookingId}`, {
+            headers: { Authorization: `Bearer ${newAccessToken}` },
+          });
+  
+          const updatedBookings = bookings.filter((booking) => booking.id !== bookingId);
+          setBookings(updatedBookings);
+        } catch (refreshErr) {
+          console.error('Failed to refresh token or retry request:', refreshErr.response?.data || refreshErr.message);
+          setError('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      } else {
+        console.error('Error deleting booking:', err.response?.data || err.message);
+        setError('Failed to delete booking');
+      }
     }
   };
 
@@ -218,7 +375,7 @@ const AdminDashboard = () => {
           {activeSection === 'users' && (
             <>
               <h2>Users</h2>
-              <Button variant="primary" onClick={() => setShowUserModal(true)}>
+              <Button variant="primary" onClick={() => { setSelectedUser(null); setShowUserModal(true); }}>
                 Add User
               </Button>
               <Table striped bordered hover>
@@ -256,7 +413,7 @@ const AdminDashboard = () => {
           {activeSection === 'tours' && (
             <>
               <h2>Tours</h2>
-              <Button variant="primary" onClick={() => setShowTourModal(true)}>
+              <Button variant="primary" onClick={() => { setSelectedTour(null); setShowTourModal(true)}}>
                 Add Tour
               </Button>
               <Table striped bordered hover>
@@ -292,7 +449,7 @@ const AdminDashboard = () => {
           {activeSection === 'bookings' && (
             <>
               <h2>Bookings</h2>
-              <Button variant="primary" onClick={() => setShowBookingModal(true)}>
+              <Button variant="primary" onClick={() => { setSelectedBooking(null); setShowBookingModal(true)}}>
                 Add Booking
               </Button>
               <Table striped bordered hover>

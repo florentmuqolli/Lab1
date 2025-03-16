@@ -55,29 +55,23 @@ const login = async (req, res) => {
 const refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
 
-  if (!refreshToken) {
-    return res.status(401).json({ message: 'Refresh token is required' });
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.id);
+    
+    if (!user || user.refresh_token !== refreshToken) {
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    res.json({ accessToken });
+  } catch (err) {
+    res.status(400).json({ message: 'Invalid refresh token' });
   }
-
-  jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
-    if (err) {
-      console.error('Refresh token verification failed:', err.message);
-      return res.status(403).json({ message: 'Invalid refresh token' });
-    }
-
-    const user = await User.findByRefreshToken(refreshToken);
-    if (!user) {
-      console.error('Refresh token not found in database');
-      return res.status(403).json({ message: 'Refresh token not found' });
-    }
-
-    const newAccessToken = generateAccessToken(user.id);
-    const newRefreshToken = generateRefreshToken(user.id);
-
-    await User.updateRefreshToken(user.id, newRefreshToken);
-
-    res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
-  });
 };
 
 const logout = async (req, res) => {

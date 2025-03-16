@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 
 const TourModal = ({ show, onHide, tour, onCreate, onUpdate }) => {
@@ -8,6 +8,24 @@ const TourModal = ({ show, onHide, tour, onCreate, onUpdate }) => {
   const [duration, setDuration] = useState(tour ? tour.duration : '');
   const [location, setLocation] = useState(tour ? tour.location : '');
   const [imageUrl, setImageUrl] = useState(tour ? tour.image_url : '');
+
+  useEffect(() => {
+    if (tour) {
+      setTitle(tour.title);
+      setDescription(tour.description);
+      setPrice(tour.price);
+      setDuration(tour.duration);
+      setLocation(tour.location); 
+      setImageUrl(tour.image_url);
+    } else {
+      setTitle('');
+      setDescription('');
+      setPrice('');
+      setDuration('');
+      setLocation(''); 
+      setImageUrl('');
+    }
+  }, [tour, show]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

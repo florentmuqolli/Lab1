@@ -1,11 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 
 const UserModal = ({ show, onHide, user, onCreate, onUpdate }) => {
-  const [name, setName] = useState(user ? user.name : '');
-  const [email, setEmail] = useState(user ? user.email : '');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(user ? user.role : 'user');
+  const [role, setRole] = useState('user');
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setRole(user.role);
+      setPassword(''); 
+    } else {
+      setName('');
+      setEmail('');
+      setRole('user');
+      setPassword('');
+    }
+  }, [user, show]); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,7 +62,7 @@ const UserModal = ({ show, onHide, user, onCreate, onUpdate }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              required={!user} 
             />
           </Form.Group>
           <Form.Group controlId="role">
