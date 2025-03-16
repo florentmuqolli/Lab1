@@ -5,10 +5,9 @@ const { generateAccessToken, generateRefreshToken } = require('../utils/generate
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    const userId = await User.create({ name, email, password: hashedPassword });
+    const userId = await User.create({ name, email, password });
     res.status(201).json({ id: userId, name, email });
   } catch (err) {
     res.status(400).json({ message: 'User already exists' });
@@ -17,23 +16,38 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findByEmail(email);
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    const accessToken = generateAccessToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
+  try {
+    const user = await User.findByEmail(email);
 
-    await User.updateRefreshToken(user.id, refreshToken);
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const accessToken = generateAccessToken({
+        id: user.id,
+        email: user.email,
+        role: user.role, 
+      });
 
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      accessToken,
-      refreshToken,
-    });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
+      const refreshToken = generateRefreshToken({
+        id: user.id,
+        email: user.email,
+        role: user.role, 
+      });
+
+      await User.updateRefreshToken(user.id, refreshToken);
+
+      res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role, 
+        accessToken,
+        refreshToken,
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid credentials' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

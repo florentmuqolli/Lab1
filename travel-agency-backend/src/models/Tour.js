@@ -14,6 +14,18 @@ class Tour {
     );
     return result.insertId;
   }
+
+  static async update(tourId, tourData) {
+    const { title, description, price, duration, location, image_url } = tourData;
+    await db.query(
+      'UPDATE tours SET title = ?, description = ?, price = ?, duration = ?, location = ?, image_url = ? WHERE id = ?',
+      [title, description, price, duration, location, image_url, tourId]
+    );
+  }
+
+  static async delete(tourId) {
+    await db.query('DELETE FROM tours WHERE id = ?', [tourId]);
+  }
 }
 
 module.exports = Tour;

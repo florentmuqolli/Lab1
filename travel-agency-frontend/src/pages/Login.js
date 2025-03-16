@@ -18,11 +18,21 @@ const Login = () => {
         email,
         password,
       });
+  
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      navigate('/dashboard');
+  
+      if (response.data.role === 'admin') {
+        navigate('/admin-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
-      setError('Invalid email or password');
+      if (err.response?.status === 401) {
+        setError('Invalid email or password');
+      } else {
+        setError('An error occurred. Please try again later.');
+      }
     }
   };
 

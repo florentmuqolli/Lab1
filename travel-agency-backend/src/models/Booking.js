@@ -3,6 +3,11 @@ const db = require('../config/db');
 class Booking {
   static async create(booking) {
     const { user_id, tour_id, status } = booking;
+  
+    if (!user_id || !tour_id || !status) {
+      throw new Error('Missing required fields');
+    }
+  
     const [result] = await db.query(
       'INSERT INTO bookings (user_id, tour_id, status) VALUES (?, ?, ?)',
       [user_id, tour_id, status]
@@ -38,6 +43,11 @@ class Booking {
       'DELETE FROM bookings WHERE id = ?',
       [bookingId]
     );
+  }
+
+  static async getAll() {
+    const [rows] = await db.query('SELECT * FROM bookings');
+    return rows;
   }
 }
 
