@@ -3,10 +3,13 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const dbUser = process.env.USE_USER_2 ? process.env.DB_USER_2 : process.env.DB_USER_1;
+const dbPassword = process.env.USE_USER_2 ? process.env.DB_PASSWORD_2 : process.env.DB_PASSWORD_1;
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  user: dbUser,
+  password: dbPassword,
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,

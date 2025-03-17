@@ -37,6 +37,7 @@ const createUser = async (req, res) => {
     }
   
     try {
+      console.log('Creating booking:', req.body);
       const bookingId = await Booking.create({ user_id, tour_id, status });
       res.status(201).json({ id: bookingId, user_id, tour_id, status });
     } catch (err) {

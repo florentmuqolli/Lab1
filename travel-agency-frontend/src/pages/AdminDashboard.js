@@ -247,19 +247,23 @@ const AdminDashboard = () => {
 
   const handleCreateBooking = async (booking) => {
     try {
+      console.log('Creating a booking:', booking);
       let accessToken = localStorage.getItem('accessToken');
       const response = await axios.post('http://localhost:5000/api/admin/bookings', booking, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
+      console.log('booking created:', response.data);
       setBookings([...bookings, response.data]);
       setShowBookingModal(false);
     } catch (err) {
       if (err.response?.status === 401) {
         try {
+          console.log('trying again Creating a booking:', booking);
           const newAccessToken = await refreshAccessToken();
           const response = await axios.post('http://localhost:5000/api/admin/bookings', booking, {
             headers: { Authorization: `Bearer ${newAccessToken}` },
           });
+          console.log('booking created on 2nd try:', response.data);
           setBookings([...bookings, response.data]);
           setShowBookingModal(false);
         } catch (refreshErr) {
