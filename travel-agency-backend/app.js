@@ -9,8 +9,19 @@ const adminRoutes = require('./src/routes/adminRoutes');
 dotenv.config();
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json());
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err); 
+  res.status(500).json({ message: 'Internal server error' });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);

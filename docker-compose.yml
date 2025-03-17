@@ -1,0 +1,55 @@
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    container_name: my-mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: crimsons
+      MYSQL_DATABASE: travel_agency
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  backend:
+    build: ./travel-agency-backend
+    container_name: my-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=crimsons
+      - DB_NAME=travel_agency
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mynetwork
+
+  frontend:
+    build: ./travel-agency-frontend
+    container_name: my-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://backend:5000
+    depends_on:
+      - backend
+    networks:
+      - mynetwork
+
+volumes:
+  mysql_data:
+
+networks:
+  mynetwork:

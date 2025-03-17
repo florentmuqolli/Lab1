@@ -16,6 +16,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log('Login request received:', { email, password });
 
   try {
     const user = await User.findByEmail(email);
@@ -34,12 +35,14 @@ const login = async (req, res) => {
       });
 
       await User.updateRefreshToken(user.id, refreshToken);
-
+      console.log('Login successful:', { user, accessToken, refreshToken });
       res.json({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role, 
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
         accessToken,
         refreshToken,
       });

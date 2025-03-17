@@ -2,14 +2,8 @@ import React from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 
-const NavigationBar = () => {
+const NavigationBar = ({ isAuthenticated, handleLogout }) => {
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/login');
-  };
 
   return (
     <Navbar bg="light" expand="lg">
@@ -24,7 +18,11 @@ const NavigationBar = () => {
             <Nav.Link as={Link} to="/my-bookings">My Bookings</Nav.Link>
           </Nav>
           <Nav>
-            <Button variant="outline-danger" onClick={handleLogout}>Logout</Button>
+            {isAuthenticated ? (
+              <Button variant="outline-danger" onClick={handleLogout}>Logout</Button>
+            ) : (
+              <Button variant="outline-success" onClick={() => navigate('/login')}>Login</Button>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>
