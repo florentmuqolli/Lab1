@@ -9,50 +9,32 @@ const Dashboard = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let isMounted = true; 
-  
     const fetchUser = async () => {
       try {
         let accessToken = localStorage.getItem('accessToken');
-  
         const response = await axios.get('http://localhost:5000/api/tours/protected', {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-  
-        if (isMounted) {
-          setUser(response.data.user);
-        }
+
+        setUser(response.data.user);
       } catch (err) {
-        if (isMounted) {
-          if (err.response?.status === 401) {
-            try {
-              const newAccessToken = await refreshAccessToken();
-              console.log('Refreshed access token:', newAccessToken);
-  
-              const response = await axios.get('http://localhost:5000/api/tours/protected', {
-                headers: { Authorization: `Bearer ${newAccessToken}` },
-              });
-  
-              if (isMounted) {
-                setUser(response.data.user);
-              }
-            } catch (refreshErr) {
-              if (isMounted) {
-                setError('Session expired. Please log in again.');
-              }
-            }
-          } else {
-            setError('Failed to fetch user data');
+        if (err.response?.status === 401) {
+          try {
+            const newAccessToken = await refreshAccessToken();
+            const response = await axios.get('http://localhost:5000/api/tours/protected', {
+              headers: { Authorization: `Bearer ${newAccessToken}` },
+            });
+            setUser(response.data.user);
+          } catch (refreshErr) {
+            setError('Session expired. Please log in again.');
           }
+        } else {
+          setError('Failed to fetch user data');
         }
       }
     };
-  
+
     fetchUser();
-  
-    return () => {
-      isMounted = false; 
-    };
   }, []);
 
   return (

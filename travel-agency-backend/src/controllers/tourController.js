@@ -1,9 +1,13 @@
 const Tour = require('../models/Tour');
 const User = require('../models/User');
 
-const getAllTours = async (req, res) => {
-  const tours = await Tour.getAll();
-  res.json(tours);
+const getAllTour = async (req, res) => {
+  try {
+    const tours = await Tour.getAll();
+    res.json(tours);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch tours' });
+  }
 };
 
 const createTour = async (req, res) => {
@@ -30,4 +34,4 @@ const getProtectedData = async (req, res) => {
   }
 };
 
-module.exports = { getAllTours, createTour, getProtectedData };
+module.exports = { getAllTour, createTour, getProtectedData };

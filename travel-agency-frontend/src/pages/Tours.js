@@ -8,30 +8,20 @@ const Tours = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    let isMounted = true; 
-  
     const fetchTours = async () => {
       try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await axios.get('http://localhost:5000/api/tours', {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-  
-        if (isMounted) {
+
           setTours(response.data);
-        }
       } catch (err) {
-        if (isMounted) {
-          console.error('Failed to fetch tours:', err);
-        }
+        console.error('Failed to fetch tours: ',err);
       }
     };
   
     fetchTours();
-  
-    return () => {
-      isMounted = false; 
-    };
   }, []);
 
   const filteredTours = tours.filter((tour) =>
