@@ -1,20 +1,54 @@
 const db = require('../config/db');
 
-const Booking = {
-  findByUserId: async (user_id) => {
-    const query = 'SELECT * FROM bookings WHERE user_id = $1';
-    const values = [user_id];
-    console.log('Executing query:', query, 'with values:', values);
-
-    try {
-      const { rows } = await db.query(query, values);
-      console.log('Query result:', rows);
-      return rows;
-    } catch (err) {
-      console.error('Error executing query:', err);
-      throw err;
+class Booking {
+  static async create(booking) {
+    const { user_id, tour_id, status } = booking;
+  
+    if (!user_id || !tour_id || !status) {
+      throw new Error('Missing required fields');
     }
-  },
-};
+  
+    const [result] = await db.query(
+      'INSERT INTO bookings (user_id, tour_id, status) VALUES (?, ?, ?)',
+      [user_id, tour_id, status]
+    );
+    return result.insertId;
+  }
+
+  static async findByUserId(userId) {
+    const [rows] = await db.query(
+      'SELECT * FROM bookings WHERE user_id = ?',
+      [userId]
+    );
+    return rows;
+  }
+
+  static async findById(bookingId) {
+    const [rows] = await db.query(
+      'SELECT * FROM bookings WHERE id = ?',
+      [bookingId]
+    );
+    return rows[0];
+  }
+
+  static async updateStatus(bookingId, status) {
+    await db.query(
+      'UPDATE bookings SET status = ? WHERE id = ?',
+      [status, bookingId]
+    );
+  }
+
+  static async delete(bookingId) {
+    await db.query(
+      'DELETE FROM bookings WHERE id = ?',
+      [bookingId]
+    );
+  }
+
+  static async getAll() {
+    const [rows] = await db.query('SELECT * FROM bookings');
+    return rows;
+  }
+}
 
 module.exports = Booking;

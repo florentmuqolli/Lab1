@@ -40,7 +40,7 @@ pool.on('error', (err) => {
 });
 
 // Function to test the pool connection with retries
-const testConnectionWithRetry = (retries = 5, delay = 5000) => {
+{/*const testConnectionWithRetry = (retries = 5, delay = 5000) => {
   pool.getConnection((err, connection) => {
     if (err) {
       console.error('Error getting connection from pool:', err);
@@ -60,6 +60,6 @@ const testConnectionWithRetry = (retries = 5, delay = 5000) => {
 };
 
 // Test the connection with retries
-testConnectionWithRetry();
+testConnectionWithRetry();*/}
 
 module.exports = pool.promise();
